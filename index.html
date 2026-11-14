@@ -1,0 +1,1995 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>PasarGuard Bulk Host Editor</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+
+      --bg-light: #f4f6f9;
+      --bg-dark: #0f131a;
+      --surface-light: #ffffff;
+      --surface-dark: #161c26;
+      --surface-alt-light: #eef2f7;
+      --surface-alt-dark: #1d2533;
+      --border-light: #cbd5e1;
+      --border-dark: #2c3749;
+      --text-light: #0f172a;
+      --text-dark: #e6edf7;
+      --muted-light: #475569;
+      --muted-dark: #94a3b8;
+      --brand-light: #1d4ed8;
+      --brand-dark: #60a5fa;
+      --brand-text-light: #ffffff;
+      --brand-text-dark: #081221;
+      --success-light: #15803d;
+      --success-dark: #4ade80;
+      --warn-light: #b45309;
+      --warn-dark: #fbbf24;
+      --danger-light: #b91c1c;
+      --danger-dark: #f87171;
+      --edited-bg-light: #fef3c7;
+      --edited-bg-dark: #2f2612;
+      --new-bg-light: #dcfce7;
+      --new-bg-dark: #112b1f;
+
+      --bg: var(--bg-light);
+      --surface: var(--surface-light);
+      --surface-alt: var(--surface-alt-light);
+      --border: var(--border-light);
+      --text: var(--text-light);
+      --muted: var(--muted-light);
+      --accent: var(--brand-light);
+      --accent-text: var(--brand-text-light);
+      --success: var(--success-light);
+      --warn: var(--warn-light);
+      --danger: var(--danger-light);
+      --edited-bg: var(--edited-bg-light);
+      --new-bg: var(--new-bg-light);
+      --scrollbar-track: #e2e8f0;
+      --scrollbar-thumb: #64748b;
+
+      @media (prefers-color-scheme: dark) {
+        --bg: var(--bg-dark);
+        --surface: var(--surface-dark);
+        --surface-alt: var(--surface-alt-dark);
+        --border: var(--border-dark);
+        --text: var(--text-dark);
+        --muted: var(--muted-dark);
+        --accent: var(--brand-dark);
+        --accent-text: var(--brand-text-dark);
+        --success: var(--success-dark);
+        --warn: var(--warn-dark);
+        --danger: var(--danger-dark);
+        --edited-bg: var(--edited-bg-dark);
+        --new-bg: var(--new-bg-dark);
+        --scrollbar-track: #161c26;
+        --scrollbar-thumb: #64748b;
+      }
+
+      @supports (color: light-dark(white, black)) {
+        --bg: light-dark(var(--bg-light), var(--bg-dark));
+        --surface: light-dark(var(--surface-light), var(--surface-dark));
+        --surface-alt: light-dark(var(--surface-alt-light), var(--surface-alt-dark));
+        --border: light-dark(var(--border-light), var(--border-dark));
+        --text: light-dark(var(--text-light), var(--text-dark));
+        --muted: light-dark(var(--muted-light), var(--muted-dark));
+        --accent: light-dark(var(--brand-light), var(--brand-dark));
+        --accent-text: light-dark(var(--brand-text-light), var(--brand-text-dark));
+        --success: light-dark(var(--success-light), var(--success-dark));
+        --warn: light-dark(var(--warn-light), var(--warn-dark));
+        --danger: light-dark(var(--danger-light), var(--danger-dark));
+        --edited-bg: light-dark(var(--edited-bg-light), var(--edited-bg-dark));
+        --new-bg: light-dark(var(--new-bg-light), var(--new-bg-dark));
+        --scrollbar-track: light-dark(#e2e8f0, #161c26);
+        --scrollbar-thumb: light-dark(#64748b, #8a99ad);
+      }
+
+      accent-color: var(--accent);
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    }
+
+    :root[data-theme="dark"] { color-scheme: dark; }
+    :root[data-theme="light"] { color-scheme: light; }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-inline-size: 1400px;
+      margin-inline: auto;
+      padding: 1rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+
+    header.topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .title-wrap h1 { margin: 0; font-size: 1.25rem; }
+    .title-wrap p { margin: 0.15rem 0 0; color: var(--muted); font-size: 0.875rem; }
+
+    .topbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    label { font-size: 0.85rem; font-weight: 600; display: inline-block; }
+
+    .field { display: flex; flex-direction: column; gap: 0.35rem; }
+
+    .field-inline {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-block-size: 44px;
+    }
+
+    input[type="text"],
+    input[type="url"],
+    input[type="password"],
+    input[type="search"],
+    select,
+    textarea {
+      font: inherit;
+      font-size: max(1rem, 0.92rem);
+      color: var(--text);
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      min-block-size: 42px;
+      inline-size: 100%;
+    }
+
+    textarea { min-block-size: 150px; resize: vertical; }
+
+    input.ltr, select.ltr, textarea.ltr {
+      direction: ltr;
+      text-align: left;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.88rem;
+    }
+
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible,
+    button:focus-visible,
+    .table-wrapper:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    input:user-invalid, select:user-invalid { border-color: var(--danger); }
+
+    button {
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      min-block-size: 40px;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+      color: var(--text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+    button.danger { background: var(--danger); color: #ffffff; border-color: var(--danger); }
+    button.small { min-block-size: 32px; padding: 0.25rem 0.6rem; font-size: 0.8rem; }
+
+    .grid-auth {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+      align-items: end;
+    }
+
+    .password-wrap { display: flex; gap: 0.35rem; }
+    .password-wrap input { flex: 1 1 auto; }
+
+    .status-banner {
+      padding: 0.65rem 0.9rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+      font-size: 0.9rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .status-banner[data-kind="success"] { border-color: var(--success); }
+    .status-banner[data-kind="error"] { border-color: var(--danger); color: var(--danger); }
+    .status-banner[data-kind="warn"] { border-color: var(--warn); }
+
+    .search-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr auto;
+      gap: 0.75rem;
+      align-items: end;
+    }
+
+    @media (max-width: 860px) {
+      .search-grid { grid-template-columns: 1fr; }
+    }
+
+    .selection-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-block-start: 0.75rem;
+      padding-block-start: 0.75rem;
+      border-block-start: 1px solid var(--border);
+    }
+
+    .btn-group { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .pill.edited { border-color: var(--warn); background: var(--edited-bg); }
+    .pill.new { border-color: var(--success); background: var(--new-bg); }
+
+    /* Tabs */
+    .tablist {
+      display: flex;
+      overflow-x: auto;
+      gap: 0.5rem;
+      border-block-end: 1px solid var(--border);
+      margin-block-end: 1rem;
+    }
+
+    [role="tab"] {
+      position: relative;
+      flex: none;
+      border: none;
+      border-radius: 8px 8px 0 0;
+      background: transparent;
+      padding: 0.6rem 1rem;
+      color: var(--muted);
+    }
+
+    [role="tab"][aria-selected="true"] { color: var(--accent); }
+
+    [role="tab"][aria-selected="true"]::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      border-block-end: 3px solid var(--accent);
+    }
+
+    .bulk-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 0.85rem;
+    }
+
+    fieldset.op-box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem;
+      margin: 0;
+      display: grid;
+      gap: 0.5rem;
+      align-content: start;
+    }
+
+    fieldset.op-box legend { font-size: 0.88rem; font-weight: 700; padding-inline: 0.35rem; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+
+    /* Responsive table */
+    .table-wrapper {
+      overflow: auto;
+      max-inline-size: 100%;
+      max-block-size: min(560px, 72vh);
+      container-type: inline-size;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+    }
+
+    @supports not (scrollbar-color: auto) {
+      .table-wrapper::-webkit-scrollbar { width: 10px; height: 10px; }
+      .table-wrapper::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 5px; }
+      .table-wrapper::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+    }
+
+    table { inline-size: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.86rem; }
+
+    caption {
+      text-align: start;
+      padding: 0.6rem 0.75rem;
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    thead { position: sticky; inset-block-start: 0; z-index: 2; background: var(--surface-alt); }
+
+    th, td {
+      padding: 0.55rem 0.65rem;
+      border-block-end: 1px solid var(--border);
+      text-align: start;
+      vertical-align: middle;
+    }
+
+    tbody tr:hover { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+    tbody tr.row-edited { background: var(--edited-bg); }
+    tbody tr.row-new { background: var(--new-bg); }
+
+    tbody th.row-remark {
+      position: sticky;
+      inset-inline-start: 0;
+      background: inherit;
+      font-weight: 600;
+      z-index: 1;
+      max-inline-size: 280px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mono {
+      direction: ltr;
+      text-align: left;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.82rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.12rem 0.45rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: 1px solid var(--border);
+    }
+
+    .badge-on { color: var(--success); border-color: var(--success); }
+    .badge-off { color: var(--danger); border-color: var(--danger); }
+    .badge-edited { color: var(--warn); border-color: var(--warn); }
+    .badge-new { color: var(--success); border-color: var(--success); }
+
+    @container (width < 700px) {
+      table, thead, tbody, tr, th, td { display: block; }
+      thead { display: none; }
+      tbody tr {
+        margin-block-end: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.35rem;
+      }
+      tbody th.row-remark {
+        position: static;
+        max-inline-size: none;
+        white-space: normal;
+        background: var(--surface-alt);
+        border-radius: 6px;
+      }
+      table {
+        --label-select: "انتخاب";
+        --label-id: "ID";
+        --label-status: "وضعیت";
+        --label-address: "آدرس";
+        --label-port: "پورت";
+        --label-inbound: "Inbound";
+        --label-sni: "SNI";
+        --label-priority: "اولویت";
+        --label-actions: "عملیات";
+      }
+      td:nth-of-type(1)::before { content: var(--label-select) ": "; font-weight: 700; }
+      td:nth-of-type(2)::before { content: var(--label-id) ": "; font-weight: 700; }
+      td:nth-of-type(3)::before { content: var(--label-status) ": "; font-weight: 700; }
+      td:nth-of-type(4)::before { content: var(--label-address) ": "; font-weight: 700; }
+      td:nth-of-type(5)::before { content: var(--label-port) ": "; font-weight: 700; }
+      td:nth-of-type(6)::before { content: var(--label-inbound) ": "; font-weight: 700; }
+      td:nth-of-type(7)::before { content: var(--label-sni) ": "; font-weight: 700; }
+      td:nth-of-type(8)::before { content: var(--label-priority) ": "; font-weight: 700; }
+      td:nth-of-type(9)::before { content: var(--label-actions) ": "; font-weight: 700; }
+    }
+
+    .staging-bar {
+      position: sticky;
+      inset-block-end: 0.75rem;
+      z-index: 5;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      background: var(--surface);
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      box-shadow: 0 10px 30px rgb(0 0 0 / 0.28);
+    }
+
+    dialog {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      max-inline-size: min(860px, 94vw);
+      inline-size: 100%;
+    }
+
+    dialog:modal { overscroll-behavior: contain; }
+    dialog::backdrop { background: rgb(0 0 0 / 0.62); overflow: hidden; overscroll-behavior: contain; }
+
+    .dialog-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-block-start: 1rem;
+    }
+
+    .diff-list { max-block-size: 55vh; overflow: auto; display: grid; gap: 0.65rem; }
+    .diff-item { border: 1px solid var(--border); border-radius: 8px; padding: 0.65rem; background: var(--surface-alt); font-size: 0.85rem; }
+    .diff-change { display: grid; gap: 0.25rem; margin-block-start: 0.35rem; padding-block-start: 0.35rem; border-block-start: 1px dashed var(--border); }
+    .diff-old { color: var(--danger); text-decoration: line-through; }
+    .diff-new { color: var(--success); font-weight: 600; }
+
+    .hint { font-size: 0.8rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="card topbar">
+      <div class="title-wrap">
+        <h1>ویرایشگر بولک هاست‌های پاسارگارد</h1>
+        <p>ویرایش گروهی، کلون دسته‌جمعی، پیش‌نمایش تغییرات و ارسال یکجا به <code>PUT /api/hosts</code> (بدون ذخیره اطلاعات روی سرور)</p>
+      </div>
+      <div class="topbar-actions">
+        <button type="button" id="theme-toggle-btn" aria-pressed="false">تغییر تم (روشن/تیره)</button>
+        <button type="button" id="json-io-btn">ورود / خروجی JSON (آفلاین)</button>
+        <button type="button" id="backup-btn" disabled>دانلود بکاپ JSON</button>
+        <button type="button" id="reload-btn" disabled>بارگذاری مجدد از پنل</button>
+      </div>
+    </header>
+
+    <section class="card" aria-labelledby="auth-heading">
+      <h2 id="auth-heading" style="margin-block-start:0; font-size:1rem;">۱. اتصال به پنل پاسارگارد</h2>
+      <form id="connect-form" aria-labelledby="auth-heading">
+        <div class="grid-auth">
+          <div class="field">
+            <label for="panel-url">آدرس پنل <span aria-hidden="true">*</span></label>
+            <input type="url" id="panel-url" name="panel_url" class="ltr" required
+                   placeholder="https://panel.example.com"
+                   autocomplete="url" autocorrect="off" autocapitalize="none" spellcheck="false">
+          </div>
+          <div class="field">
+            <label for="transport-mode">حالت اتصال</label>
+            <select id="transport-mode" name="transport_mode">
+              <option value="auto">خودکار (تشخیص سرور لوکال / مستقیم)</option>
+              <option value="direct">مستقیم از مرورگر (مناسب GitHub Pages)</option>
+              <option value="proxy">پروکسی لوکال (server.py)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="auth-mode">روش احراز هویت</label>
+            <select id="auth-mode" name="auth_mode">
+              <option value="password">نام کاربری و رمز عبور</option>
+              <option value="token">توکن / API Key (pg_key_...)</option>
+            </select>
+          </div>
+          <div class="field" id="username-field">
+            <label for="username">نام کاربری ادمین</label>
+            <input type="text" id="username" name="username" class="ltr"
+                   autocomplete="username" autocorrect="off" autocapitalize="none" spellcheck="false">
+          </div>
+          <div class="field" id="password-field">
+            <label for="password">رمز عبور</label>
+            <div class="password-wrap">
+              <input type="password" id="password" name="password" class="ltr" autocomplete="current-password">
+              <button type="button" id="toggle-password-btn" aria-pressed="false" aria-label="نمایش رمز عبور">نمایش</button>
+            </div>
+          </div>
+          <div class="field" id="token-field" hidden>
+            <label for="bearer-token">Bearer Token / API Key</label>
+            <input type="text" id="bearer-token" name="bearer_token" class="ltr"
+                   autocorrect="off" autocapitalize="none" spellcheck="false">
+          </div>
+          <div class="field-inline" id="insecure-ssl-wrap">
+            <input type="checkbox" id="insecure-ssl" name="insecure_ssl">
+            <label for="insecure-ssl">نادیده گرفتن SSL (فقط در پروکسی لوکال)</label>
+          </div>
+          <div>
+            <button type="submit" class="primary" id="connect-btn" style="inline-size:100%;">اتصال و دریافت هاست‌ها</button>
+          </div>
+        </div>
+      </form>
+      <div id="status-banner" class="status-banner" role="status" aria-live="polite" style="margin-block-start:0.75rem;">
+        <span id="status-text">در حال بررسی حالت اتصال...</span>
+        <span id="host-counts-text" class="hint"></span>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="bulk-heading">
+      <h2 id="bulk-heading" style="margin-block-start:0; font-size:1rem;">۲. عملیات بولک روی هاست‌های انتخاب‌شده</h2>
+
+      <div class="tablist" role="tablist" focusgroup="tablist nomemory" aria-label="نوع عملیات بولک">
+        <button type="button" role="tab" id="tab-edit" aria-selected="true" focusgroupstart>ویرایش گروهی (Bulk Edit)</button>
+        <button type="button" role="tab" id="tab-clone" aria-selected="false">کلون گروهی (Bulk Clone)</button>
+      </div>
+
+      <div id="panel-edit" role="tabpanel" aria-labelledby="tab-edit">
+        <form id="bulk-edit-form">
+          <div class="bulk-grid">
+            <fieldset class="op-box">
+              <legend>نام هاست (Remark)</legend>
+              <div class="two-col">
+                <div class="field">
+                  <label for="edit-remark-find">پیدا کن (Find)</label>
+                  <input type="text" id="edit-remark-find" name="remark_find" class="ltr" placeholder="(tun2)"
+                         autocorrect="off" autocapitalize="none" spellcheck="false">
+                </div>
+                <div class="field">
+                  <label for="edit-remark-replace">جایگزین کن (Replace)</label>
+                  <input type="text" id="edit-remark-replace" name="remark_replace" class="ltr" placeholder="(Server 2)"
+                         autocorrect="off" autocapitalize="none" spellcheck="false">
+                </div>
+              </div>
+              <div class="two-col">
+                <div class="field">
+                  <label for="edit-remark-prefix">پیشوند (Prefix)</label>
+                  <input type="text" id="edit-remark-prefix" name="remark_prefix" class="ltr"
+                         autocorrect="off" autocapitalize="none" spellcheck="false">
+                </div>
+                <div class="field">
+                  <label for="edit-remark-suffix">پسوند (Suffix)</label>
+                  <input type="text" id="edit-remark-suffix" name="remark_suffix" class="ltr"
+                         autocorrect="off" autocapitalize="none" spellcheck="false">
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="op-box">
+              <legend>آدرس (Address)</legend>
+              <div class="field">
+                <label for="edit-address-mode">حالت تغییر</label>
+                <select id="edit-address-mode" name="address_mode">
+                  <option value="keep">تغییر نده</option>
+                  <option value="set">جایگزینی کل لیست آدرس (با کاما جدا کنید)</option>
+                  <option value="replace_text">جایگزینی متن داخل آدرس‌ها</option>
+                  <option value="add">افزودن به لیست آدرس‌ها</option>
+                  <option value="remove">حذف از لیست آدرس‌ها</option>
+                </select>
+              </div>
+              <div class="field" id="edit-address-val-wrap" hidden>
+                <label for="edit-address-val">مقدار آدرس</label>
+                <input type="text" id="edit-address-val" name="address_val" class="ltr" placeholder="{TUN1DOMAIN}"
+                       autocorrect="off" autocapitalize="none" spellcheck="false">
+              </div>
+              <div class="two-col" id="edit-address-rep-wrap" hidden>
+                <div class="field">
+                  <label for="edit-address-find">متن قبلی</label>
+                  <input type="text" id="edit-address-find" name="address_find" class="ltr"
+                         autocorrect="off" autocapitalize="none" spellcheck="false">
+                </div>
+                <div class="field">
+                  <label for="edit-address-replace">متن جدید</label>
+                  <input type="text" id="edit-address-replace" name="address_replace" class="ltr"
+                         autocorrect="off" autocapitalize="none" spellcheck="false">
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="op-box">
+              <legend>پورت و Inbound</legend>
+              <div class="field">
+                <label for="edit-port-mode">تغییر پورت</label>
+                <select id="edit-port-mode" name="port_mode">
+                  <option value="keep">تغییر نده</option>
+                  <option value="set">تنظیم پورت عددی</option>
+                  <option value="null">پیش‌فرض اینباند (null / ⚙️)</option>
+                </select>
+              </div>
+              <div class="field" id="edit-port-val-wrap" hidden>
+                <label for="edit-port-val">شماره پورت (1 تا 65535)</label>
+                <input type="text" id="edit-port-val" name="port_val" class="ltr" inputmode="numeric" pattern="\d{1,5}">
+              </div>
+              <div class="field">
+                <label for="edit-inbound-mode">تغییر Inbound Tag</label>
+                <select id="edit-inbound-mode" name="inbound_mode">
+                  <option value="keep">تغییر نده</option>
+                  <option value="set">تنظیم مقدار جدید</option>
+                  <option value="replace_text">جایگزینی متنی</option>
+                </select>
+              </div>
+              <div class="field" id="edit-inbound-val-wrap" hidden>
+                <label for="edit-inbound-val">Inbound Tag جدید</label>
+                <input type="text" id="edit-inbound-val" name="inbound_val" class="ltr"
+                       autocorrect="off" autocapitalize="none" spellcheck="false">
+              </div>
+              <div class="two-col" id="edit-inbound-rep-wrap" hidden>
+                <div class="field">
+                  <label for="edit-inbound-find">متن قبلی</label>
+                  <input type="text" id="edit-inbound-find" name="inbound_find" class="ltr"
+                         autocorrect="off" autocapitalize="none" spellcheck="false">
+                </div>
+                <div class="field">
+                  <label for="edit-inbound-replace">متن جدید</label>
+                  <input type="text" id="edit-inbound-replace" name="inbound_replace" class="ltr"
+                         autocorrect="off" autocapitalize="none" spellcheck="false">
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="op-box">
+              <legend>SNI / Host / Path و وضعیت</legend>
+              <div class="field">
+                <label for="edit-sni-val">SNI جدید (اختیاری، با کاما جدا کنید)</label>
+                <input type="text" id="edit-sni-val" name="sni_val" class="ltr" placeholder="خالی = بدون تغییر"
+                       autocorrect="off" autocapitalize="none" spellcheck="false">
+              </div>
+              <div class="field">
+                <label for="edit-host-val">Host Header جدید (اختیاری، با کاما جدا کنید)</label>
+                <input type="text" id="edit-host-val" name="host_val" class="ltr" placeholder="خالی = بدون تغییر"
+                       autocorrect="off" autocapitalize="none" spellcheck="false">
+              </div>
+              <div class="field">
+                <label for="edit-path-val">Path جدید (اختیاری)</label>
+                <input type="text" id="edit-path-val" name="path_val" class="ltr" placeholder="خالی = بدون تغییر"
+                       autocorrect="off" autocapitalize="none" spellcheck="false">
+              </div>
+              <div class="two-col">
+                <div class="field">
+                  <label for="edit-disabled">وضعیت فعال/غیرفعال</label>
+                  <select id="edit-disabled" name="is_disabled">
+                    <option value="keep">تغییر نده</option>
+                    <option value="false">فعال (Enable)</option>
+                    <option value="true">غیرفعال (Disable)</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="edit-allowinsecure">AllowInsecure</label>
+                  <select id="edit-allowinsecure" name="allowinsecure">
+                    <option value="keep">تغییر نده</option>
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                  </select>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div class="btn-group" style="margin-block-start:0.85rem;">
+            <button type="submit" class="primary" id="stage-edit-btn">اعمال تغییرات در پیش‌نویس (روی موارد انتخاب‌شده)</button>
+            <button type="button" id="reset-edit-form-btn">پاک کردن فرم</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="panel-clone" role="tabpanel" aria-labelledby="tab-clone" hidden>
+        <form id="bulk-clone-form">
+          <div class="bulk-grid">
+            <fieldset class="op-box">
+              <legend>تغییر نام (Remark) در نسخه‌های کلون‌شده</legend>
+              <div class="two-col">
+                <div class="field">
+                  <label for="clone-remark-find">پیدا کن (اختیاری)</label>
+                  <input type="text" id="clone-remark-find" name="clone_remark_find" class="ltr"
+                         autocorrect="off" autocapitalize="none" spellcheck="false">
+                </div>
+                <div class="field">
+                  <label for="clone-remark-replace">جایگزین کن</label>
+                  <input type="text" id="clone-remark-replace" name="clone_remark_replace" class="ltr"
+                         autocorrect="off" autocapitalize="none" spellcheck="false">
+                </div>
+              </div>
+              <div class="two-col">
+                <div class="field">
+                  <label for="clone-remark-prefix">پیشوند (Prefix)</label>
+                  <input type="text" id="clone-remark-prefix" name="clone_remark_prefix" class="ltr"
+                         autocorrect="off" autocapitalize="none" spellcheck="false">
+                </div>
+                <div class="field">
+                  <label for="clone-remark-suffix">پسوند (Suffix)</label>
+                  <input type="text" id="clone-remark-suffix" name="clone_remark_suffix" class="ltr" placeholder=" (tun2)"
+                         autocorrect="off" autocapitalize="none" spellcheck="false">
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="op-box">
+              <legend>آدرس (Address) در کلون‌ها</legend>
+              <div class="field">
+                <label for="clone-address-mode">حالت آدرس</label>
+                <select id="clone-address-mode" name="clone_address_mode">
+                  <option value="set">تنظیم آدرس جدید (جایگزینی کامل لیست)</option>
+                  <option value="replace_text">جایگزینی متنی داخل آدرس</option>
+                  <option value="keep">مثل هاست اصلی بماند</option>
+                </select>
+              </div>
+              <div class="field" id="clone-address-val-wrap">
+                <label for="clone-address-val">آدرس یا متغیر جدید</label>
+                <input type="text" id="clone-address-val" name="clone_address_val" class="ltr" placeholder="{TUN2DOMAIN}"
+                       autocorrect="off" autocapitalize="none" spellcheck="false">
+              </div>
+              <div class="two-col" id="clone-address-rep-wrap" hidden>
+                <div class="field">
+                  <label for="clone-address-find">متن قبلی</label>
+                  <input type="text" id="clone-address-find" name="clone_address_find" class="ltr"
+                         autocorrect="off" autocapitalize="none" spellcheck="false">
+                </div>
+                <div class="field">
+                  <label for="clone-address-replace">متن جدید</label>
+                  <input type="text" id="clone-address-replace" name="clone_address_replace" class="ltr"
+                         autocorrect="off" autocapitalize="none" spellcheck="false">
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="op-box">
+              <legend>تنظیمات اختیاری کلون‌ها</legend>
+              <div class="two-col">
+                <div class="field">
+                  <label for="clone-inbound-find">تغییر Inbound (Find)</label>
+                  <input type="text" id="clone-inbound-find" name="clone_inbound_find" class="ltr"
+                         autocorrect="off" autocapitalize="none" spellcheck="false">
+                </div>
+                <div class="field">
+                  <label for="clone-inbound-replace">جایگزین Inbound</label>
+                  <input type="text" id="clone-inbound-replace" name="clone_inbound_replace" class="ltr"
+                         autocorrect="off" autocapitalize="none" spellcheck="false">
+                </div>
+              </div>
+              <div class="two-col">
+                <div class="field">
+                  <label for="clone-port">پورت جدید (خالی = مثل اصلی)</label>
+                  <input type="text" id="clone-port" name="clone_port" class="ltr" inputmode="numeric" placeholder="یا null">
+                </div>
+                <div class="field">
+                  <label for="clone-disabled">وضعیت اولیه کلون</label>
+                  <select id="clone-disabled" name="clone_disabled">
+                    <option value="keep">مثل هاست اصلی</option>
+                    <option value="false">فعال (Enabled)</option>
+                    <option value="true">غیرفعال (Disabled)</option>
+                  </select>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div class="btn-group" style="margin-block-start:0.85rem;">
+            <button type="submit" class="primary" id="stage-clone-btn">ساخت کلون‌ها در پیش‌نویس</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="list-heading">
+      <h2 id="list-heading" style="margin-block-start:0; font-size:1rem;">۳. لیست هاست‌ها و فیلتر</h2>
+      <search>
+        <form id="filter-form" class="search-grid">
+          <div class="field">
+            <label for="search-input">جستجو (Remark، آدرس، Inbound، SNI، Host)</label>
+            <input type="search" id="search-input" name="q" placeholder="مثلاً: Miami یا fallback-front2 یا TUN1"
+                   autocorrect="off" autocapitalize="none" spellcheck="false">
+          </div>
+          <div class="field">
+            <label for="inbound-filter">فیلتر Inbound</label>
+            <select id="inbound-filter" name="inbound_filter">
+              <option value="">همه Inboundها</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="state-filter">فیلتر وضعیت</label>
+            <select id="state-filter" name="state_filter">
+              <option value="all">همه</option>
+              <option value="enabled">فقط فعال</option>
+              <option value="disabled">فقط غیرفعال</option>
+              <option value="changed">فقط تغییریافته / جدید</option>
+            </select>
+          </div>
+          <div>
+            <button type="button" id="clear-filters-btn">پاک کردن فیلتر</button>
+          </div>
+        </form>
+      </search>
+
+      <div class="selection-toolbar">
+        <div class="btn-group">
+          <button type="button" id="select-filtered-btn">انتخاب همه نتایج فیلترشده</button>
+          <button type="button" id="clear-selection-btn">لغو انتخاب</button>
+          <button type="button" id="invert-selection-btn">معکوس کردن انتخاب</button>
+          <span class="pill" id="selected-pill">انتخاب‌شده: ۰</span>
+        </div>
+        <div class="btn-group">
+          <button type="button" class="danger" id="bulk-delete-btn" disabled>حذف گروهی از پنل</button>
+        </div>
+      </div>
+
+      <div tabindex="0" role="region" aria-labelledby="hosts-table-caption" class="table-wrapper" style="margin-block-start:0.85rem;">
+        <table>
+          <caption id="hosts-table-caption">هاست‌های بارگذاری‌شده (تغییرات پیش‌نویس با رنگ زرد و کلون‌های جدید با رنگ سبز مشخص می‌شوند)</caption>
+          <thead>
+            <tr>
+              <th scope="col"><input type="checkbox" id="header-select-all" aria-label="انتخاب همه ردیف‌های قابل مشاهده"></th>
+              <th scope="col">ID</th>
+              <th scope="col">وضعیت</th>
+              <th scope="col">نام (Remark)</th>
+              <th scope="col">آدرس (Address)</th>
+              <th scope="col">پورت</th>
+              <th scope="col">Inbound</th>
+              <th scope="col">SNI</th>
+              <th scope="col">اولویت</th>
+              <th scope="col">عملیات</th>
+            </tr>
+          </thead>
+          <tbody id="hosts-tbody">
+            <tr>
+              <td colspan="10" style="text-align:center; padding:2rem; color:var(--muted);">
+                ابتدا به پنل متصل شوید یا از دکمه «ورود / خروجی JSON (آفلاین)» خروجی <code>GET /api/hosts</code> را وارد کنید.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="staging-bar" id="staging-bar" hidden>
+      <div class="btn-group">
+        <span class="pill edited" id="edited-count-pill">ویرایش‌شده: ۰</span>
+        <span class="pill new" id="new-count-pill">کلون جدید: ۰</span>
+      </div>
+      <div class="btn-group">
+        <button type="button" id="preview-diff-btn">پیش‌نمایش تغییرات (Diff)</button>
+        <button type="button" id="export-changes-json-btn">خروجی JSON تغییرات</button>
+        <button type="button" id="reset-all-btn">لغو همه تغییرات پیش‌نویس</button>
+        <button type="button" class="primary" id="apply-panel-btn">اعمال نهایی روی پنل (PUT /api/hosts)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Non-destructive Diff Preview Dialog -->
+  <dialog id="diff-dialog" closedby="any" aria-labelledby="diff-dialog-title">
+    <h2 id="diff-dialog-title" style="margin-block-start:0; font-size:1.1rem;">پیش‌نمایش تغییرات قبل از ارسال به پنل</h2>
+    <p id="diff-dialog-summary" style="color:var(--muted); font-size:0.88rem;"></p>
+    <div class="diff-list" id="diff-list"></div>
+    <form method="dialog" class="dialog-actions">
+      <button value="close" autofocus>بستن</button>
+      <button value="apply" class="primary">تأیید و ارسال به پنل</button>
+    </form>
+  </dialog>
+
+  <!-- JSON Import / Export Offline Dialog -->
+  <dialog id="json-dialog" closedby="any" aria-labelledby="json-dialog-title">
+    <h2 id="json-dialog-title" style="margin-block-start:0; font-size:1.1rem;">ورود و خروجی JSON (مناسب وقتی CORS بسته است)</h2>
+    <p class="hint" style="margin-block-start:0;">
+      اگر پنل شما دسترسی مستقیم مرورگر (CORS) را بسته است، از Swagger پنل (<code>/docs</code> → <code>GET /api/hosts</code>) خروجی JSON را کپی و اینجا بارگذاری کنید، تغییرات بولک را بزنید و خروجی نهایی را در <code>PUT /api/hosts</code> پیست کنید.
+    </p>
+    <div class="field">
+      <label for="json-import-file">یا انتخاب فایل JSON:</label>
+      <input type="file" id="json-import-file" accept=".json,application/json">
+    </div>
+    <div class="field" style="margin-block-start:0.65rem;">
+      <label for="json-io-textarea">محتوای JSON (آرایه هاست‌ها):</label>
+      <textarea id="json-io-textarea" class="ltr" placeholder='[{"id": 1, "remark": "...", ...}]'
+                autocorrect="off" autocapitalize="none" spellcheck="false"></textarea>
+    </div>
+    <div class="btn-group" style="margin-block-start:0.75rem;">
+      <button type="button" class="primary" id="json-load-btn">بارگذاری JSON ورودی در جدول</button>
+      <button type="button" id="json-fill-changes-btn">نمایش JSON تغییرات آماده (برای PUT /api/hosts)</button>
+      <button type="button" id="json-copy-btn">کپی متن کادر</button>
+      <button type="button" id="json-download-btn">دانلود فایل JSON</button>
+    </div>
+    <form method="dialog" class="dialog-actions">
+      <button value="close" autofocus>بستن</button>
+    </form>
+  </dialog>
+
+  <!-- Destructive Bulk Delete Confirmation Dialog -->
+  <dialog id="delete-dialog" aria-labelledby="delete-dialog-title">
+    <h2 id="delete-dialog-title" style="margin-block-start:0; font-size:1.1rem; color:var(--danger);">تأیید حذف گروهی هاست‌ها</h2>
+    <p id="delete-dialog-desc" style="font-size:0.92rem;"></p>
+    <form method="dialog" class="dialog-actions">
+      <button value="cancel" autofocus>انصراف</button>
+      <button value="delete" class="danger">بله، حذف شود</button>
+    </form>
+  </dialog>
+
+  <script>
+    (() => {
+      'use strict';
+
+      // ---------- State ----------
+      const state = {
+        baseUrl: '',
+        token: '',
+        insecureSsl: false,
+        proxyAvailable: false,
+        rows: [], // { key, host, originalHost, isNew, isDirty }
+        selectedKeys: new Set(),
+        nextClientId: 1,
+      };
+
+      // ---------- DOM Refs ----------
+      const el = (id) => document.getElementById(id);
+      const connectForm = el('connect-form');
+      const panelUrlInput = el('panel-url');
+      const transportModeSelect = el('transport-mode');
+      const authModeSelect = el('auth-mode');
+      const usernameField = el('username-field');
+      const passwordField = el('password-field');
+      const tokenField = el('token-field');
+      const usernameInput = el('username');
+      const passwordInput = el('password');
+      const togglePasswordBtn = el('toggle-password-btn');
+      const bearerTokenInput = el('bearer-token');
+      const insecureSslCheckbox = el('insecure-ssl');
+      const connectBtn = el('connect-btn');
+      const backupBtn = el('backup-btn');
+      const reloadBtn = el('reload-btn');
+      const jsonIoBtn = el('json-io-btn');
+      const themeToggleBtn = el('theme-toggle-btn');
+
+      const statusBanner = el('status-banner');
+      const statusText = el('status-text');
+      const hostCountsText = el('host-counts-text');
+
+      const searchInput = el('search-input');
+      const inboundFilter = el('inbound-filter');
+      const stateFilter = el('state-filter');
+      const clearFiltersBtn = el('clear-filters-btn');
+      const headerSelectAll = el('header-select-all');
+      const selectFilteredBtn = el('select-filtered-btn');
+      const clearSelectionBtn = el('clear-selection-btn');
+      const invertSelectionBtn = el('invert-selection-btn');
+      const selectedPill = el('selected-pill');
+      const bulkDeleteBtn = el('bulk-delete-btn');
+      const hostsTbody = el('hosts-tbody');
+
+      const stagingBar = el('staging-bar');
+      const editedCountPill = el('edited-count-pill');
+      const newCountPill = el('new-count-pill');
+      const previewDiffBtn = el('preview-diff-btn');
+      const exportChangesJsonBtn = el('export-changes-json-btn');
+      const resetAllBtn = el('reset-all-btn');
+      const applyPanelBtn = el('apply-panel-btn');
+
+      const diffDialog = el('diff-dialog');
+      const diffDialogSummary = el('diff-dialog-summary');
+      const diffList = el('diff-list');
+      const jsonDialog = el('json-dialog');
+      const jsonImportFile = el('json-import-file');
+      const jsonIoTextarea = el('json-io-textarea');
+      const jsonLoadBtn = el('json-load-btn');
+      const jsonFillChangesBtn = el('json-fill-changes-btn');
+      const jsonCopyBtn = el('json-copy-btn');
+      const jsonDownloadBtn = el('json-download-btn');
+      const deleteDialog = el('delete-dialog');
+      const deleteDialogDesc = el('delete-dialog-desc');
+
+      // ---------- Helpers ----------
+      function deepClone(obj) {
+        return structuredClone(obj);
+      }
+
+      function setStatus(message, kind = 'info') {
+        statusBanner.dataset.kind = kind;
+        statusText.textContent = message;
+      }
+
+      function parseCsvList(raw) {
+        return raw.split(',').map((item) => item.trim()).filter(Boolean);
+      }
+
+      function normalizeBaseUrl(rawUrl) {
+        const parsed = new URL(rawUrl.trim());
+        const cleanPath = parsed.pathname.replace(/\/dashboard(?:\/.*)?$/, '').replace(/\/+$/, '');
+        return `${parsed.protocol}//${parsed.host}${cleanPath}`;
+      }
+
+      function computeDirty(row) {
+        if (row.isNew) return false;
+        return JSON.stringify(row.host) !== JSON.stringify(row.originalHost);
+      }
+
+      function formatErrorDetail(detail) {
+        if (!detail) return 'خطای نامشخص از سرور';
+        if (typeof detail === 'string') return detail;
+        if (Array.isArray(detail)) {
+          return detail.map((d) => `${(d.loc || []).join('.')}: ${d.msg || JSON.stringify(d)}`).join(' | ');
+        }
+        if (typeof detail === 'object') {
+          return Object.entries(detail).map(([k, v]) => `${k}: ${v}`).join(' | ');
+        }
+        return String(detail);
+      }
+
+      function buildAuthHeaders(useAuth) {
+        const headers = {};
+        if (useAuth && state.token) {
+          const cleanToken = state.token.replace(/^(Bearer|ApiKey)\s+/i, '').trim();
+          if (cleanToken.startsWith('pg_key_')) {
+            headers['X-Api-Key'] = cleanToken;
+          } else {
+            headers.Authorization = `Bearer ${cleanToken}`;
+          }
+        }
+        return headers;
+      }
+
+      function resolveTransportMode() {
+        const chosen = transportModeSelect.value;
+        if (chosen === 'proxy' || chosen === 'direct') return chosen;
+        return state.proxyAvailable ? 'proxy' : 'direct';
+      }
+
+      async function detectLocalProxy() {
+        if (window.location.protocol === 'file:') {
+          state.proxyAvailable = false;
+          setStatus('حالت مستقیم فعال است (برای اتصال مستقیم یا استفاده از ورود/خروجی JSON آماده است).', 'info');
+          return;
+        }
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 900);
+        try {
+          const res = await fetch('/health', { signal: controller.signal, cache: 'no-store' });
+          const data = res.ok ? await res.json() : null;
+          state.proxyAvailable = Boolean(data && data.status === 'ok');
+        } catch {
+          state.proxyAvailable = false;
+        } finally {
+          clearTimeout(timer);
+        }
+        setStatus(
+          state.proxyAvailable
+            ? 'پروکسی لوکال (server.py) شناسایی شد و آماده اتصال است.'
+            : 'حالت وب مستقیم فعال است. در صورت محدودیت CORS پنل، از «ورود/خروجی JSON» یا اجرای لوکال server.py استفاده کنید.',
+          'info',
+        );
+      }
+
+      async function apiRequest({ method, path, body = null, bodyType = 'json', useAuth = true }) {
+        const headers = buildAuthHeaders(useAuth);
+        const mode = resolveTransportMode();
+
+        if (mode === 'proxy') {
+          const res = await fetch('/proxy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              baseUrl: state.baseUrl,
+              method,
+              path,
+              headers,
+              body,
+              bodyType,
+              insecureSsl: state.insecureSsl,
+            }),
+          });
+          return parseApiResponse(res);
+        }
+
+        // Direct browser fetch (for GitHub Pages / static web hosting)
+        if (window.location.protocol === 'https:' && state.baseUrl.startsWith('http://')) {
+          throw new Error('صفحه روی HTTPS باز شده و مرورگر اجازه اتصال مستقیم به آدرس http:// را نمی‌دهد. از آدرس https:// پنل یا پروکسی لوکال server.py استفاده کنید.');
+        }
+
+        const fetchOpts = { method, headers: { ...headers } };
+        if (body !== null && method !== 'GET') {
+          if (bodyType === 'form') {
+            fetchOpts.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+            fetchOpts.body = new URLSearchParams(body).toString();
+          } else {
+            fetchOpts.headers['Content-Type'] = 'application/json';
+            fetchOpts.body = JSON.stringify(body);
+          }
+        }
+
+        let res;
+        try {
+          res = await fetch(`${state.baseUrl}${path}`, fetchOpts);
+        } catch {
+          throw new Error('اتصال مستقیم مرورگر به پنل مسدود شد (احتمالاً به دلیل CORS یا فایروال/SSL). می‌توانید از دکمه «ورود / خروجی JSON» یا اجرای لوکال server.py استفاده کنید.');
+        }
+        return parseApiResponse(res);
+      }
+
+      async function parseApiResponse(res) {
+        const text = await res.text();
+        let data = null;
+        try {
+          data = text ? JSON.parse(text) : null;
+        } catch {
+          data = text;
+        }
+        if (!res.ok) {
+          const msg = (data && typeof data === 'object' && 'detail' in data)
+            ? formatErrorDetail(data.detail)
+            : (typeof data === 'string' && data) || `HTTP ${res.status}`;
+          throw new Error(msg);
+        }
+        return data;
+      }
+
+      function loadHostsArray(hosts) {
+        if (!Array.isArray(hosts)) {
+          throw new Error('داده هاست‌ها باید یک آرایه JSON معتبر باشد.');
+        }
+        state.rows = hosts.map((host) => ({
+          key: `row-${state.nextClientId++}`,
+          host: deepClone(host),
+          originalHost: deepClone(host),
+          isNew: false,
+          isDirty: false,
+        }));
+        state.selectedKeys.clear();
+        populateInboundFilter();
+        renderAll();
+        backupBtn.disabled = state.rows.length === 0;
+      }
+
+      function getChangesPayload() {
+        return state.rows
+          .filter((r) => r.isNew || r.isDirty)
+          .map((r) => {
+            const obj = deepClone(r.host);
+            if (r.isNew) delete obj.id;
+            return obj;
+          });
+      }
+
+      // ---------- Theme Toggle ----------
+      themeToggleBtn.addEventListener('click', () => {
+        const root = document.documentElement;
+        const current = root.dataset.theme;
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const next = current ? (current === 'dark' ? 'light' : 'dark') : (prefersDark ? 'light' : 'dark');
+        root.dataset.theme = next;
+        themeToggleBtn.setAttribute('aria-pressed', String(next === 'dark'));
+      });
+
+      // ---------- Auth Form UI ----------
+      authModeSelect.addEventListener('change', () => {
+        const isToken = authModeSelect.value === 'token';
+        usernameField.hidden = isToken;
+        passwordField.hidden = isToken;
+        tokenField.hidden = !isToken;
+      });
+
+      togglePasswordBtn.addEventListener('click', () => {
+        const show = passwordInput.type === 'password';
+        passwordInput.type = show ? 'text' : 'password';
+        togglePasswordBtn.setAttribute('aria-pressed', String(show));
+        togglePasswordBtn.textContent = show ? 'مخفی' : 'نمایش';
+      });
+
+      // ---------- Tabs (accessible + arrow key fallback) ----------
+      const tabs = [el('tab-edit'), el('tab-clone')];
+      const tabPanels = [el('panel-edit'), el('panel-clone')];
+
+      function activateTab(selectedTab) {
+        tabs.forEach((tab, idx) => {
+          const active = tab === selectedTab;
+          tab.setAttribute('aria-selected', String(active));
+          tab.toggleAttribute('focusgroupstart', active);
+          const panel = tabPanels[idx];
+          panel.hidden = !active;
+          if (active) panel.setAttribute('tabindex', '0');
+          else panel.removeAttribute('tabindex');
+        });
+      }
+
+      tabs.forEach((tab, idx) => {
+        tab.addEventListener('click', () => activateTab(tab));
+        tab.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            const nextIdx = (idx + 1) % tabs.length;
+            tabs[nextIdx].focus();
+            activateTab(tabs[nextIdx]);
+          }
+        });
+      });
+
+      // ---------- Dynamic Form Mode Visibility ----------
+      function syncEditFieldVisibility() {
+        const addrMode = el('edit-address-mode').value;
+        el('edit-address-val-wrap').hidden = !['set', 'add', 'remove'].includes(addrMode);
+        el('edit-address-rep-wrap').hidden = addrMode !== 'replace_text';
+
+        const portMode = el('edit-port-mode').value;
+        el('edit-port-val-wrap').hidden = portMode !== 'set';
+
+        const inbMode = el('edit-inbound-mode').value;
+        el('edit-inbound-val-wrap').hidden = inbMode !== 'set';
+        el('edit-inbound-rep-wrap').hidden = inbMode !== 'replace_text';
+
+        const cloneAddrMode = el('clone-address-mode').value;
+        el('clone-address-val-wrap').hidden = cloneAddrMode !== 'set';
+        el('clone-address-rep-wrap').hidden = cloneAddrMode !== 'replace_text';
+      }
+
+      ['edit-address-mode', 'edit-port-mode', 'edit-inbound-mode', 'clone-address-mode']
+        .forEach((id) => el(id).addEventListener('change', syncEditFieldVisibility));
+      syncEditFieldVisibility();
+
+      // ---------- Load & Connect ----------
+      async function loadHostsFromPanel() {
+        setStatus('در حال دریافت لیست هاست‌ها...', 'info');
+        const hosts = await apiRequest({ method: 'GET', path: '/api/hosts' });
+        loadHostsArray(hosts);
+        reloadBtn.disabled = false;
+        setStatus(`${state.rows.length} هاست با موفقیت از پنل بارگذاری شد.`, 'success');
+      }
+
+      connectForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!connectForm.reportValidity()) return;
+
+        try {
+          state.baseUrl = normalizeBaseUrl(panelUrlInput.value);
+        } catch {
+          setStatus('آدرس پنل معتبر نیست.', 'error');
+          panelUrlInput.focus();
+          return;
+        }
+        state.insecureSsl = insecureSslCheckbox.checked;
+        connectBtn.disabled = true;
+
+        try {
+          if (authModeSelect.value === 'token') {
+            const rawTok = bearerTokenInput.value.trim();
+            if (!rawTok) throw new Error('لطفاً توکن یا API Key را وارد کنید.');
+            state.token = rawTok;
+          } else {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+            if (!username || !password) throw new Error('نام کاربری و رمز عبور الزامی است.');
+            setStatus('در حال احراز هویت...', 'info');
+            const tokenResp = await apiRequest({
+              method: 'POST',
+              path: '/api/admin/token',
+              body: { username, password },
+              bodyType: 'form',
+              useAuth: false,
+            });
+            if (!tokenResp || !tokenResp.access_token) {
+              throw new Error('توکن از سرور دریافت نشد.');
+            }
+            state.token = tokenResp.access_token;
+          }
+          await loadHostsFromPanel();
+        } catch (err) {
+          setStatus(`خطا: ${err.message}`, 'error');
+        } finally {
+          connectBtn.disabled = false;
+        }
+      });
+
+      reloadBtn.addEventListener('click', async () => {
+        reloadBtn.disabled = true;
+        try {
+          await loadHostsFromPanel();
+        } catch (err) {
+          setStatus(`خطا در بارگذاری مجدد: ${err.message}`, 'error');
+        } finally {
+          reloadBtn.disabled = false;
+        }
+      });
+
+      backupBtn.addEventListener('click', () => {
+        const originals = state.rows.filter((r) => !r.isNew).map((r) => r.originalHost);
+        downloadJsonFile(originals, `pasarguard-hosts-backup-${new Date().toISOString().slice(0, 10)}.json`);
+        setStatus('فایل بکاپ JSON دانلود شد.', 'success');
+      });
+
+      function downloadJsonFile(data, filename) {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      // ---------- JSON Offline Dialog ----------
+      function openJsonDialogWithChanges() {
+        const changes = getChangesPayload();
+        jsonIoTextarea.value = changes.length ? JSON.stringify(changes, null, 2) : '';
+        jsonDialog.showModal();
+      }
+
+      jsonIoBtn.addEventListener('click', () => {
+        if (!jsonIoTextarea.value.trim() && state.rows.length > 0) {
+          const changes = getChangesPayload();
+          if (changes.length > 0) {
+            jsonIoTextarea.value = JSON.stringify(changes, null, 2);
+          }
+        }
+        jsonDialog.showModal();
+      });
+
+      exportChangesJsonBtn.addEventListener('click', openJsonDialogWithChanges);
+
+      jsonImportFile.addEventListener('change', async () => {
+        const file = jsonImportFile.files && jsonImportFile.files[0];
+        if (!file) return;
+        jsonIoTextarea.value = await file.text();
+      });
+
+      jsonLoadBtn.addEventListener('click', () => {
+        try {
+          const parsed = JSON.parse(jsonIoTextarea.value);
+          loadHostsArray(parsed);
+          jsonDialog.close();
+          setStatus(`${state.rows.length} هاست از JSON بارگذاری شد (حالت آفلاین).`, 'success');
+        } catch (err) {
+          setStatus(`خطا در خواندن JSON: ${err.message}`, 'error');
+        }
+      });
+
+      jsonFillChangesBtn.addEventListener('click', () => {
+        const changes = getChangesPayload();
+        jsonIoTextarea.value = JSON.stringify(changes, null, 2);
+      });
+
+      jsonCopyBtn.addEventListener('click', async () => {
+        if (!jsonIoTextarea.value.trim()) return;
+        try {
+          await navigator.clipboard.writeText(jsonIoTextarea.value);
+          setStatus('محتوای JSON در کلیپ‌بورد کپی شد.', 'success');
+        } catch {
+          jsonIoTextarea.select();
+          setStatus('متن انتخاب شد؛ با Ctrl+C کپی کنید.', 'info');
+        }
+      });
+
+      jsonDownloadBtn.addEventListener('click', () => {
+        const raw = jsonIoTextarea.value.trim();
+        if (!raw) return;
+        try {
+          const parsed = JSON.parse(raw);
+          downloadJsonFile(parsed, `pasarguard-hosts-changes-${new Date().toISOString().slice(0, 10)}.json`);
+        } catch {
+          setStatus('متن داخل کادر JSON معتبر نیست.', 'error');
+        }
+      });
+
+      // ---------- Filtering & Table Rendering ----------
+      function populateInboundFilter() {
+        const prev = inboundFilter.value;
+        const tags = Array.from(new Set(state.rows.map((r) => r.host.inbound_tag).filter(Boolean))).sort();
+        inboundFilter.replaceChildren();
+        const allOpt = document.createElement('option');
+        allOpt.value = '';
+        allOpt.textContent = 'همه Inboundها';
+        inboundFilter.appendChild(allOpt);
+        for (const tag of tags) {
+          const opt = document.createElement('option');
+          opt.value = tag;
+          opt.textContent = tag;
+          inboundFilter.appendChild(opt);
+        }
+        if (tags.includes(prev)) inboundFilter.value = prev;
+      }
+
+      function getFilteredRows() {
+        const q = searchInput.value.trim().toLowerCase();
+        const inb = inboundFilter.value;
+        const st = stateFilter.value;
+
+        return state.rows.filter((row) => {
+          const h = row.host;
+          if (inb && h.inbound_tag !== inb) return false;
+          if (st === 'enabled' && h.is_disabled) return false;
+          if (st === 'disabled' && !h.is_disabled) return false;
+          if (st === 'changed' && !row.isDirty && !row.isNew) return false;
+          if (q) {
+            const hay = [
+              h.remark,
+              h.inbound_tag,
+              h.path,
+              ...(Array.isArray(h.address) ? h.address : []),
+              ...(Array.isArray(h.sni) ? h.sni : []),
+              ...(Array.isArray(h.host) ? h.host : []),
+            ].filter(Boolean).join(' ').toLowerCase();
+            if (!hay.includes(q)) return false;
+          }
+          return true;
+        });
+      }
+
+      function renderTable() {
+        const filtered = getFilteredRows();
+        hostsTbody.replaceChildren();
+
+        if (state.rows.length === 0) {
+          const tr = document.createElement('tr');
+          const td = document.createElement('td');
+          td.colSpan = 10;
+          td.style.textAlign = 'center';
+          td.style.padding = '2rem';
+          td.style.color = 'var(--muted)';
+          td.textContent = 'ابتدا به پنل متصل شوید یا از دکمه «ورود / خروجی JSON (آفلاین)» خروجی GET /api/hosts را وارد کنید.';
+          tr.appendChild(td);
+          hostsTbody.appendChild(tr);
+          headerSelectAll.checked = false;
+          headerSelectAll.indeterminate = false;
+          return;
+        }
+
+        if (filtered.length === 0) {
+          const tr = document.createElement('tr');
+          const td = document.createElement('td');
+          td.colSpan = 10;
+          td.style.textAlign = 'center';
+          td.style.padding = '1.5rem';
+          td.style.color = 'var(--muted)';
+          td.textContent = 'موردی مطابق فیلتر پیدا نشد.';
+          tr.appendChild(td);
+          hostsTbody.appendChild(tr);
+          headerSelectAll.checked = false;
+          headerSelectAll.indeterminate = false;
+          return;
+        }
+
+        let checkedInFiltered = 0;
+        for (const row of filtered) {
+          const h = row.host;
+          const tr = document.createElement('tr');
+          if (row.isNew) tr.className = 'row-new';
+          else if (row.isDirty) tr.className = 'row-edited';
+
+          const tdCheck = document.createElement('td');
+          const cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.checked = state.selectedKeys.has(row.key);
+          if (cb.checked) checkedInFiltered++;
+          cb.setAttribute('aria-label', `انتخاب ${h.remark || row.key}`);
+          cb.addEventListener('change', () => {
+            if (cb.checked) state.selectedKeys.add(row.key);
+            else state.selectedKeys.delete(row.key);
+            updateSelectionSummary();
+          });
+          tdCheck.appendChild(cb);
+          tr.appendChild(tdCheck);
+
+          const tdId = document.createElement('td');
+          tdId.className = 'mono';
+          tdId.textContent = row.isNew ? 'NEW' : String(h.id ?? '-');
+          tr.appendChild(tdId);
+
+          const tdStatus = document.createElement('td');
+          const statusBadge = document.createElement('span');
+          statusBadge.className = `badge ${h.is_disabled ? 'badge-off' : 'badge-on'}`;
+          statusBadge.textContent = h.is_disabled ? 'غیرفعال' : 'فعال';
+          tdStatus.appendChild(statusBadge);
+          if (row.isNew) {
+            const b = document.createElement('span');
+            b.className = 'badge badge-new';
+            b.style.marginInlineStart = '4px';
+            b.textContent = 'کلون';
+            tdStatus.appendChild(b);
+          } else if (row.isDirty) {
+            const b = document.createElement('span');
+            b.className = 'badge badge-edited';
+            b.style.marginInlineStart = '4px';
+            b.textContent = 'ویرایش';
+            tdStatus.appendChild(b);
+          }
+          tr.appendChild(tdStatus);
+
+          const thRemark = document.createElement('th');
+          thRemark.scope = 'row';
+          thRemark.className = 'row-remark';
+          thRemark.title = h.remark || '';
+          thRemark.textContent = h.remark || '';
+          tr.appendChild(thRemark);
+
+          const tdAddr = document.createElement('td');
+          tdAddr.className = 'mono';
+          tdAddr.textContent = Array.isArray(h.address) ? h.address.join(', ') : (h.address || '');
+          tr.appendChild(tdAddr);
+
+          const tdPort = document.createElement('td');
+          tdPort.className = 'mono';
+          tdPort.textContent = h.port === null || h.port === undefined ? '⚙️ default' : String(h.port);
+          tr.appendChild(tdPort);
+
+          const tdInb = document.createElement('td');
+          tdInb.className = 'mono';
+          tdInb.textContent = h.inbound_tag || '-';
+          tr.appendChild(tdInb);
+
+          const tdSni = document.createElement('td');
+          tdSni.className = 'mono';
+          tdSni.textContent = Array.isArray(h.sni) ? h.sni.join(', ') : (h.sni || '');
+          tr.appendChild(tdSni);
+
+          const tdPri = document.createElement('td');
+          tdPri.className = 'mono';
+          tdPri.textContent = String(h.priority ?? 0);
+          tr.appendChild(tdPri);
+
+          const tdAct = document.createElement('td');
+          if (row.isNew || row.isDirty) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'small';
+            btn.textContent = row.isNew ? 'حذف کلون' : 'برگشت';
+            btn.addEventListener('click', () => {
+              if (row.isNew) {
+                state.rows = state.rows.filter((r) => r.key !== row.key);
+                state.selectedKeys.delete(row.key);
+              } else {
+                row.host = deepClone(row.originalHost);
+                row.isDirty = false;
+              }
+              populateInboundFilter();
+              renderAll();
+            });
+            tdAct.appendChild(btn);
+          } else {
+            tdAct.textContent = '-';
+          }
+          tr.appendChild(tdAct);
+
+          hostsTbody.appendChild(tr);
+        }
+
+        headerSelectAll.checked = checkedInFiltered === filtered.length && filtered.length > 0;
+        headerSelectAll.indeterminate = checkedInFiltered > 0 && checkedInFiltered < filtered.length;
+      }
+
+      function updateSelectionSummary() {
+        selectedPill.textContent = `انتخاب‌شده: ${state.selectedKeys.size}`;
+        bulkDeleteBtn.disabled = state.selectedKeys.size === 0 || !state.token;
+
+        const filtered = getFilteredRows();
+        const checkedCount = filtered.filter((r) => state.selectedKeys.has(r.key)).length;
+        headerSelectAll.checked = checkedCount === filtered.length && filtered.length > 0;
+        headerSelectAll.indeterminate = checkedCount > 0 && checkedCount < filtered.length;
+      }
+
+      function updateStagingBar() {
+        const editedCount = state.rows.filter((r) => !r.isNew && r.isDirty).length;
+        const newCount = state.rows.filter((r) => r.isNew).length;
+        editedCountPill.textContent = `ویرایش‌شده: ${editedCount}`;
+        newCountPill.textContent = `کلون جدید: ${newCount}`;
+        stagingBar.hidden = editedCount === 0 && newCount === 0;
+        applyPanelBtn.disabled = !state.token || !state.baseUrl;
+        hostCountsText.textContent = state.rows.length
+          ? `کل هاست‌ها: ${state.rows.length} (فیلترشده: ${getFilteredRows().length})`
+          : '';
+      }
+
+      function renderAll() {
+        renderTable();
+        updateSelectionSummary();
+        updateStagingBar();
+      }
+
+      [searchInput, inboundFilter, stateFilter].forEach((ctrl) => {
+        ctrl.addEventListener('input', renderAll);
+        ctrl.addEventListener('change', renderAll);
+      });
+
+      clearFiltersBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        inboundFilter.value = '';
+        stateFilter.value = 'all';
+        renderAll();
+      });
+
+      headerSelectAll.addEventListener('change', () => {
+        const filtered = getFilteredRows();
+        if (headerSelectAll.checked) {
+          filtered.forEach((r) => state.selectedKeys.add(r.key));
+        } else {
+          filtered.forEach((r) => state.selectedKeys.delete(r.key));
+        }
+        renderAll();
+      });
+
+      selectFilteredBtn.addEventListener('click', () => {
+        getFilteredRows().forEach((r) => state.selectedKeys.add(r.key));
+        renderAll();
+      });
+
+      clearSelectionBtn.addEventListener('click', () => {
+        state.selectedKeys.clear();
+        renderAll();
+      });
+
+      invertSelectionBtn.addEventListener('click', () => {
+        for (const r of getFilteredRows()) {
+          if (state.selectedKeys.has(r.key)) state.selectedKeys.delete(r.key);
+          else state.selectedKeys.add(r.key);
+        }
+        renderAll();
+      });
+
+      // ---------- Stage Bulk Edit ----------
+      el('reset-edit-form-btn').addEventListener('click', () => {
+        el('bulk-edit-form').reset();
+        syncEditFieldVisibility();
+      });
+
+      el('bulk-edit-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const selectedRows = state.rows.filter((r) => state.selectedKeys.has(r.key));
+        if (selectedRows.length === 0) {
+          setStatus('ابتدا حداقل یک هاست را از جدول انتخاب کنید.', 'warn');
+          return;
+        }
+
+        const remarkFind = el('edit-remark-find').value;
+        const remarkReplace = el('edit-remark-replace').value;
+        const remarkPrefix = el('edit-remark-prefix').value;
+        const remarkSuffix = el('edit-remark-suffix').value;
+
+        const addrMode = el('edit-address-mode').value;
+        const addrVal = el('edit-address-val').value;
+        const addrFind = el('edit-address-find').value;
+        const addrReplace = el('edit-address-replace').value;
+
+        const portMode = el('edit-port-mode').value;
+        const portValRaw = el('edit-port-val').value.trim();
+        let parsedPort = null;
+        if (portMode === 'set') {
+          parsedPort = Number.parseInt(portValRaw, 10);
+          if (!Number.isInteger(parsedPort) || parsedPort < 1 || parsedPort > 65535) {
+            setStatus('شماره پورت باید عددی بین ۱ تا ۶۵۵۳۵ باشد.', 'error');
+            el('edit-port-val').focus();
+            return;
+          }
+        }
+
+        const inboundMode = el('edit-inbound-mode').value;
+        const inboundVal = el('edit-inbound-val').value.trim();
+        const inboundFind = el('edit-inbound-find').value;
+        const inboundReplace = el('edit-inbound-replace').value;
+
+        const sniRaw = el('edit-sni-val').value.trim();
+        const hostRaw = el('edit-host-val').value.trim();
+        const pathRaw = el('edit-path-val').value;
+        const disabledMode = el('edit-disabled').value;
+        const allowInsecureMode = el('edit-allowinsecure').value;
+
+        for (const row of selectedRows) {
+          const h = row.host;
+          if (remarkFind) h.remark = (h.remark || '').split(remarkFind).join(remarkReplace);
+          if (remarkPrefix) h.remark = `${remarkPrefix}${h.remark || ''}`;
+          if (remarkSuffix) h.remark = `${h.remark || ''}${remarkSuffix}`;
+
+          const currentAddrs = Array.isArray(h.address) ? [...h.address] : (h.address ? [h.address] : []);
+          if (addrMode === 'set') {
+            h.address = parseCsvList(addrVal);
+          } else if (addrMode === 'replace_text' && addrFind) {
+            h.address = currentAddrs.map((a) => a.split(addrFind).join(addrReplace));
+          } else if (addrMode === 'add') {
+            const toAdd = parseCsvList(addrVal);
+            h.address = Array.from(new Set([...currentAddrs, ...toAdd]));
+          } else if (addrMode === 'remove') {
+            const toRemove = new Set(parseCsvList(addrVal));
+            h.address = currentAddrs.filter((a) => !toRemove.has(a));
+          }
+
+          if (portMode === 'set') h.port = parsedPort;
+          else if (portMode === 'null') h.port = null;
+
+          if (inboundMode === 'set' && inboundVal) h.inbound_tag = inboundVal;
+          else if (inboundMode === 'replace_text' && inboundFind) {
+            h.inbound_tag = (h.inbound_tag || '').split(inboundFind).join(inboundReplace);
+          }
+
+          if (sniRaw) h.sni = parseCsvList(sniRaw);
+          if (hostRaw) h.host = parseCsvList(hostRaw);
+          if (pathRaw !== '') h.path = pathRaw;
+
+          if (disabledMode === 'true') h.is_disabled = true;
+          else if (disabledMode === 'false') h.is_disabled = false;
+
+          if (allowInsecureMode === 'true') h.allowinsecure = true;
+          else if (allowInsecureMode === 'false') h.allowinsecure = false;
+
+          row.isDirty = computeDirty(row);
+        }
+
+        populateInboundFilter();
+        renderAll();
+        setStatus(`تغییرات روی ${selectedRows.length} هاست در پیش‌نویس اعمال شد (هنوز به پنل ارسال نشده).`, 'warn');
+      });
+
+      // ---------- Stage Bulk Clone ----------
+      el('bulk-clone-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const selectedRows = state.rows.filter((r) => state.selectedKeys.has(r.key));
+        if (selectedRows.length === 0) {
+          setStatus('ابتدا هاست‌هایی را که می‌خواهید کلون شوند انتخاب کنید.', 'warn');
+          return;
+        }
+
+        const rFind = el('clone-remark-find').value;
+        const rReplace = el('clone-remark-replace').value;
+        const rPrefix = el('clone-remark-prefix').value;
+        const rSuffix = el('clone-remark-suffix').value;
+
+        const addrMode = el('clone-address-mode').value;
+        const addrVal = el('clone-address-val').value;
+        const addrFind = el('clone-address-find').value;
+        const addrReplace = el('clone-address-replace').value;
+
+        const inbFind = el('clone-inbound-find').value;
+        const inbReplace = el('clone-inbound-replace').value;
+        const portRaw = el('clone-port').value.trim();
+        const disabledMode = el('clone-disabled').value;
+
+        let parsedPort;
+        let updatePort = false;
+        if (portRaw.toLowerCase() === 'null') {
+          parsedPort = null;
+          updatePort = true;
+        } else if (portRaw !== '') {
+          parsedPort = Number.parseInt(portRaw, 10);
+          if (!Number.isInteger(parsedPort) || parsedPort < 1 || parsedPort > 65535) {
+            setStatus('پورت کلون باید بین ۱ تا ۶۵۵۳۵ یا null یا خالی باشد.', 'error');
+            return;
+          }
+          updatePort = true;
+        }
+
+        let maxPriority = state.rows.reduce((max, r) => Math.max(max, Number(r.host.priority ?? 0)), -1);
+        const createdRows = [];
+
+        for (const row of selectedRows) {
+          const clone = deepClone(row.host);
+          delete clone.id;
+
+          if (rFind) clone.remark = (clone.remark || '').split(rFind).join(rReplace);
+          if (rPrefix) clone.remark = `${rPrefix}${clone.remark || ''}`;
+          if (rSuffix) clone.remark = `${clone.remark || ''}${rSuffix}`;
+
+          const addrs = Array.isArray(clone.address) ? [...clone.address] : (clone.address ? [clone.address] : []);
+          if (addrMode === 'set' && addrVal.trim()) {
+            clone.address = parseCsvList(addrVal);
+          } else if (addrMode === 'replace_text' && addrFind) {
+            clone.address = addrs.map((a) => a.split(addrFind).join(addrReplace));
+          }
+
+          if (inbFind) {
+            clone.inbound_tag = (clone.inbound_tag || '').split(inbFind).join(inbReplace);
+          }
+          if (updatePort) clone.port = parsedPort;
+          if (disabledMode === 'true') clone.is_disabled = true;
+          else if (disabledMode === 'false') clone.is_disabled = false;
+
+          maxPriority += 1;
+          clone.priority = maxPriority;
+
+          createdRows.push({
+            key: `row-${state.nextClientId++}`,
+            host: clone,
+            originalHost: null,
+            isNew: true,
+            isDirty: false,
+          });
+        }
+
+        state.rows.push(...createdRows);
+        populateInboundFilter();
+        renderAll();
+        setStatus(`${createdRows.length} کلون جدید به پیش‌نویس اضافه شد (برای ثبت نهایی «اعمال نهایی روی پنل» یا «خروجی JSON تغییرات» را بزنید).`, 'warn');
+      });
+
+      // ---------- Reset All Staged Changes ----------
+      resetAllBtn.addEventListener('click', () => {
+        state.rows = state.rows
+          .filter((r) => !r.isNew)
+          .map((r) => ({
+            ...r,
+            host: deepClone(r.originalHost),
+            isDirty: false,
+          }));
+        state.selectedKeys.clear();
+        populateInboundFilter();
+        renderAll();
+        setStatus('تمام تغییرات پیش‌نویس لغو شد.', 'info');
+      });
+
+      // ---------- Diff Preview Dialog ----------
+      function buildDiffDetails() {
+        const modified = state.rows.filter((r) => !r.isNew && r.isDirty);
+        const created = state.rows.filter((r) => r.isNew);
+        const fieldsToCompare = ['remark', 'address', 'port', 'inbound_tag', 'sni', 'host', 'path', 'is_disabled', 'allowinsecure', 'priority'];
+
+        diffList.replaceChildren();
+        diffDialogSummary.textContent = `تعداد ${modified.length} هاست ویرایش‌شده و ${created.length} هاست جدید برای ارسال به PUT /api/hosts آماده است.`;
+
+        for (const row of modified) {
+          const box = document.createElement('div');
+          box.className = 'diff-item';
+          const title = document.createElement('strong');
+          title.textContent = `[ویرایش ID ${row.host.id}] ${row.host.remark}`;
+          box.appendChild(title);
+
+          for (const field of fieldsToCompare) {
+            const oldVal = JSON.stringify(row.originalHost[field]);
+            const newVal = JSON.stringify(row.host[field]);
+            if (oldVal !== newVal) {
+              const ch = document.createElement('div');
+              ch.className = 'diff-change';
+              const lbl = document.createElement('span');
+              lbl.textContent = `فیلد ${field}:`;
+              const o = document.createElement('span');
+              o.className = 'diff-old mono';
+              o.textContent = oldVal;
+              const n = document.createElement('span');
+              n.className = 'diff-new mono';
+              n.textContent = newVal;
+              ch.append(lbl, o, n);
+              box.appendChild(ch);
+            }
+          }
+          diffList.appendChild(box);
+        }
+
+        for (const row of created) {
+          const box = document.createElement('div');
+          box.className = 'diff-item';
+          const title = document.createElement('strong');
+          title.textContent = `[کلون جدید] ${row.host.remark}`;
+          const meta = document.createElement('div');
+          meta.className = 'mono';
+          meta.style.marginBlockStart = '0.25rem';
+          meta.textContent = `address=${JSON.stringify(row.host.address)} | port=${row.host.port ?? 'default'} | inbound=${row.host.inbound_tag} | priority=${row.host.priority}`;
+          box.append(title, meta);
+          diffList.appendChild(box);
+        }
+      }
+
+      previewDiffBtn.addEventListener('click', () => {
+        buildDiffDetails();
+        diffDialog.showModal();
+      });
+
+      diffDialog.addEventListener('close', async () => {
+        const action = diffDialog.returnValue;
+        diffDialog.returnValue = '';
+        if (action === 'apply') {
+          if (state.token && state.baseUrl) await applyChangesToPanel();
+          else openJsonDialogWithChanges();
+        }
+      });
+
+      // Fallback light dismiss when closedby="any" is unsupported
+      if (!('closedBy' in HTMLDialogElement.prototype)) {
+        const outside = (e, dialog) => {
+          const r = dialog.getBoundingClientRect();
+          return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+        };
+        for (const dlg of [diffDialog, jsonDialog]) {
+          let pressedOutside = false;
+          dlg.addEventListener('pointerdown', (e) => { pressedOutside = outside(e, dlg); });
+          dlg.addEventListener('pointerup', (e) => { if (pressedOutside && outside(e, dlg)) dlg.close(); });
+        }
+      }
+
+      // ---------- Apply Changes (PUT /api/hosts) ----------
+      async function applyChangesToPanel() {
+        const payload = getChangesPayload();
+        if (payload.length === 0) {
+          setStatus('تغییری برای ارسال وجود ندارد.', 'info');
+          return;
+        }
+        if (!state.token || !state.baseUrl) {
+          openJsonDialogWithChanges();
+          return;
+        }
+
+        applyPanelBtn.disabled = true;
+        setStatus(`در حال ارسال ${payload.length} هاست به پنل...`, 'info');
+        try {
+          await apiRequest({
+            method: 'PUT',
+            path: '/api/hosts',
+            body: payload,
+          });
+          await loadHostsFromPanel();
+          setStatus(`موفق! ${payload.length} هاست روی پنل ذخیره و همگام‌سازی شد.`, 'success');
+        } catch (err) {
+          setStatus(`خطا هنگام ذخیره در پنل: ${err.message}`, 'error');
+        } finally {
+          applyPanelBtn.disabled = false;
+        }
+      }
+
+      applyPanelBtn.addEventListener('click', applyChangesToPanel);
+
+      // ---------- Bulk Delete (POST /api/hosts/bulk/delete) ----------
+      bulkDeleteBtn.addEventListener('click', () => {
+        const selected = state.rows.filter((r) => state.selectedKeys.has(r.key));
+        if (selected.length === 0) return;
+        const existingCount = selected.filter((r) => !r.isNew).length;
+        const cloneCount = selected.filter((r) => r.isNew).length;
+        deleteDialogDesc.textContent = `آیا مطمئنید می‌خواهید ${existingCount} هاست از پنل و ${cloneCount} کلون پیش‌نویس را حذف کنید؟ این عملیات قابل برگشت نیست.`;
+        deleteDialog.showModal();
+      });
+
+      deleteDialog.addEventListener('close', async () => {
+        const action = deleteDialog.returnValue;
+        deleteDialog.returnValue = '';
+        if (action !== 'delete') return;
+
+        const selected = state.rows.filter((r) => state.selectedKeys.has(r.key));
+        const existingIds = selected.filter((r) => !r.isNew && r.host.id != null).map((r) => r.host.id);
+
+        try {
+          if (existingIds.length > 0) {
+            setStatus(`در حال حذف ${existingIds.length} هاست از پنل...`, 'info');
+            await apiRequest({
+              method: 'POST',
+              path: '/api/hosts/bulk/delete',
+              body: { ids: existingIds },
+            });
+          }
+          if (existingIds.length > 0) {
+            await loadHostsFromPanel();
+          } else {
+            state.rows = state.rows.filter((r) => !state.selectedKeys.has(r.key));
+            state.selectedKeys.clear();
+            renderAll();
+          }
+          setStatus('حذف گروهی با موفقیت انجام شد.', 'success');
+        } catch (err) {
+          setStatus(`خطا در حذف گروهی: ${err.message}`, 'error');
+        }
+      });
+
+      detectLocalProxy();
+    })();
+  </script>
+</body>
+</html>
